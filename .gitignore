@@ -37,3 +37,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### 程序执行时产生的文件 ###
+laptop.bin
+laptop.txt
