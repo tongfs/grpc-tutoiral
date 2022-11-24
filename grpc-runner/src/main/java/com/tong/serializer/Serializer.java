@@ -17,6 +17,8 @@ public class Serializer {
 
     /**
      * 将 Laptop 对象序列化为二进制文件
+     * 可以用其他语言尝试读取该二进制文件，经反序列化后得到的 JSON 文件和 writeJsonFile 方法得到的文件完全一致
+     * @see Serializer#writeJsonFile(Laptop, String)
      */
     public void writeBinaryFile(Laptop laptop, String filename) throws IOException {
         FileOutputStream outputStream = new FileOutputStream(filename);

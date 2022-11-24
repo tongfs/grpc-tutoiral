@@ -7,6 +7,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+/**
+ * 测试序列化和反序列化
+ */
 public class SerializerTest {
 
     @Test

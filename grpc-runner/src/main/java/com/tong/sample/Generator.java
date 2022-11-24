@@ -1,12 +1,21 @@
 package com.tong.sample;
 
 import com.google.protobuf.Timestamp;
-import com.tong.proto.*;
+import com.tong.proto.Cpu;
+import com.tong.proto.Gpu;
+import com.tong.proto.Keyboard;
+import com.tong.proto.Laptop;
+import com.tong.proto.Memory;
+import com.tong.proto.Screen;
+import com.tong.proto.Storage;
 
 import java.time.Instant;
 import java.util.Random;
 import java.util.UUID;
 
+/**
+ * 用于生成 Laptop 对象
+ */
 public class Generator {
     public static void main(String[] args) {
         Generator generator = new Generator();
