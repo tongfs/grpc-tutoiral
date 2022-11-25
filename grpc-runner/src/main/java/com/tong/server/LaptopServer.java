@@ -27,6 +27,9 @@ public class LaptopServer {
         server = serverBuilder.addService(laptopService).build();
     }
 
+    /**
+     * 启动服务
+     */
     public void start() throws IOException {
         server.start();
         logger.info("server started on port: " + PORT);
@@ -42,12 +45,18 @@ public class LaptopServer {
         }));
     }
 
+    /**
+     * 停止服务端
+     */
     public void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
     }
 
+    /**
+     * 等待服务端关闭
+     */
     private void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
             server.awaitTermination();

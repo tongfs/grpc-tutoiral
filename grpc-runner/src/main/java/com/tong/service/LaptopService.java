@@ -5,6 +5,7 @@ import com.tong.proto.CreateLaptopRequest;
 import com.tong.proto.CreateLaptopResponse;
 import com.tong.proto.Laptop;
 import com.tong.proto.LaptopServiceGrpc;
+import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
@@ -44,6 +45,18 @@ public class LaptopService extends LaptopServiceGrpc.LaptopServiceImplBase {
             }
         }
 
+//        heavyTask();
+
+        if (Context.current().isCancelled()) {
+            logger.info("request is cancelled");
+            responseObserver.onError(
+                    Status.CANCELLED
+                            .withDescription("request is cancelled")
+                            .asRuntimeException()
+            );
+            return;
+        }
+
         Laptop other = laptop.toBuilder().setId(uuid.toString()).build();
         try {
             store.save(other);
@@ -68,5 +81,16 @@ public class LaptopService extends LaptopServiceGrpc.LaptopServiceImplBase {
         responseObserver.onCompleted();
 
         logger.info("saved laptop with ID: " + other.getId());
+    }
+
+    /**
+     * 模拟耗时任务
+     */
+    private void heavyTask() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
