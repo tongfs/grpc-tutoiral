@@ -1,14 +1,13 @@
 package com.tong.client;
 
-import com.tong.proto.CreateLaptopRequest;
-import com.tong.proto.CreateLaptopResponse;
-import com.tong.proto.Laptop;
-import com.tong.proto.LaptopServiceGrpc;
+import com.tong.proto.*;
+import com.tong.sample.Generator;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +18,7 @@ public class LaptopClient {
     private final ManagedChannel channel;
     private final LaptopServiceGrpc.LaptopServiceBlockingStub blockingStub;
 
-    public LaptopClient(String host, int port) {
+    private LaptopClient(String host, int port) {
         channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
@@ -27,11 +26,11 @@ public class LaptopClient {
         blockingStub = LaptopServiceGrpc.newBlockingStub(channel);
     }
 
-    public void shutdown() throws InterruptedException {
+    private void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public void createLaptop(Laptop laptop) {
+    private void createLaptop(Laptop laptop) {
         CreateLaptopRequest request = CreateLaptopRequest.newBuilder().setLaptop(laptop).build();
         CreateLaptopResponse response;
         try {
@@ -53,11 +52,53 @@ public class LaptopClient {
         logger.info("laptop created with ID: " + response.getId());
     }
 
+    private void searchLaptop(Filter filter) {
+        logger.info("search started");
+
+        try {
+            SearchLaptopRequest request = SearchLaptopRequest.newBuilder().setFilter(filter).build();
+            Iterator<SearchLaptopResponse> iterator = blockingStub
+                    .withDeadlineAfter(5, TimeUnit.SECONDS)
+                    .searchLaptop(request);
+
+            while (iterator.hasNext()) {
+                SearchLaptopResponse response = iterator.next();
+                Laptop laptop = response.getLaptop();
+                logger.info("- found: " + laptop.getId());
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "request failed: " + e.getMessage());
+            return;
+        }
+
+        logger.info("search completed");
+    }
+
     public static void main(String[] args) throws InterruptedException {
         LaptopClient client = new LaptopClient("localhost", 8080);
-        Laptop laptop = Laptop.newBuilder().setId("571ca802-155d-4ee0-9cfa-d5ed14700bfa").build();
+        Generator generator = new Generator();
 
-        client.createLaptop(laptop);
-        client.shutdown();
+        try {
+            for (int i = 0; i < 10; i++) {
+                Laptop laptop = generator.newLaptop();
+                client.createLaptop(laptop);
+            }
+
+            Memory minRam = Memory.newBuilder()
+                    .setValue(8)
+                    .setUnit(Memory.Unit.GIGABYTE)
+                    .build();
+
+            Filter filter = Filter.newBuilder()
+                    .setMaxPriceUsd(3000)
+                    .setMinCpuCores(4)
+                    .setMinCpuGhz(2.5)
+                    .setMinRam(minRam)
+                    .build();
+
+            client.searchLaptop(filter);
+        } finally {
+            client.shutdown();
+        }
     }
 }

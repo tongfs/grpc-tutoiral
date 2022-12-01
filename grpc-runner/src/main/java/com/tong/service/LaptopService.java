@@ -1,10 +1,7 @@
 package com.tong.service;
 
 import com.tong.exception.AlreadyExistsException;
-import com.tong.proto.CreateLaptopRequest;
-import com.tong.proto.CreateLaptopResponse;
-import com.tong.proto.Laptop;
-import com.tong.proto.LaptopServiceGrpc;
+import com.tong.proto.*;
 import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -45,7 +42,7 @@ public class LaptopService extends LaptopServiceGrpc.LaptopServiceImplBase {
             }
         }
 
-//        heavyTask();
+//        Utils.heavyTask(5);
 
         if (Context.current().isCancelled()) {
             logger.info("request is cancelled");
@@ -83,14 +80,18 @@ public class LaptopService extends LaptopServiceGrpc.LaptopServiceImplBase {
         logger.info("saved laptop with ID: " + other.getId());
     }
 
-    /**
-     * 模拟耗时任务
-     */
-    private void heavyTask() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void searchLaptop(SearchLaptopRequest request, StreamObserver<SearchLaptopResponse> responseObserver) {
+        Filter filter = request.getFilter();
+        logger.info("got a search-laptop request with filter:\n" + filter);
+
+        store.search(Context.current(), filter, laptop -> {
+            logger.info("found laptop with ID: " + laptop.getId());
+            SearchLaptopResponse response = SearchLaptopResponse.newBuilder().setLaptop(laptop).build();
+            responseObserver.onNext(response);
+        });
+
+        responseObserver.onCompleted();
+        logger.info("search laptop completed");
     }
 }

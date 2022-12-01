@@ -2,7 +2,7 @@ package com.tong.server;
 
 import com.tong.service.LaptopService;
 import com.tong.service.LaptopStoreService;
-import com.tong.service.LaptopStoreServiceInMemory;
+import com.tong.service.LaptopStoreServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
@@ -64,7 +64,7 @@ public class LaptopServer {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        LaptopStoreService store = new LaptopStoreServiceInMemory();
+        LaptopStoreService store = new LaptopStoreServiceImpl();
         LaptopServer server = new LaptopServer(8080, store);
         server.start();
         server.blockUntilShutdown();

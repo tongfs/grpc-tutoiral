@@ -6,7 +6,7 @@ import com.tong.proto.Laptop;
 import com.tong.proto.LaptopServiceGrpc;
 import com.tong.sample.Generator;
 import com.tong.service.LaptopStoreService;
-import com.tong.service.LaptopStoreServiceInMemory;
+import com.tong.service.LaptopStoreServiceImpl;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -21,6 +21,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+/**
+ * 测试 unary
+ */
 public class LaptopServerTest {
 
     private LaptopStoreService store;
@@ -38,7 +41,7 @@ public class LaptopServerTest {
         String serverName = InProcessServerBuilder.generateName();
         InProcessServerBuilder serverBuilder = InProcessServerBuilder.forName(serverName).directExecutor();
 
-        store = new LaptopStoreServiceInMemory();
+        store = new LaptopStoreServiceImpl();
         server = new LaptopServer(serverBuilder, 0, store);
         server.start();
 
