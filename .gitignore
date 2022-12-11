@@ -41,3 +41,5 @@ build/
 ### 程序执行时产生的文件 ###
 laptop.bin
 laptop.txt
+img/**
+tmp/**

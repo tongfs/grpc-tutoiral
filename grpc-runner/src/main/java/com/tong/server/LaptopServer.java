@@ -1,5 +1,7 @@
 package com.tong.server;
 
+import com.tong.service.ImageStoreService;
+import com.tong.service.ImageStoreServiceImpl;
 import com.tong.service.LaptopService;
 import com.tong.service.LaptopStoreService;
 import com.tong.service.LaptopStoreServiceImpl;
@@ -17,13 +19,13 @@ public class LaptopServer {
     private final int PORT;
     private final Server server;
 
-    public LaptopServer(int port, LaptopStoreService store) {
-        this(ServerBuilder.forPort(port), port, store);
+    public LaptopServer(int port, LaptopStoreService laptopStore, ImageStoreService imageStore) {
+        this(ServerBuilder.forPort(port), port, laptopStore, imageStore);
     }
 
-    public LaptopServer(ServerBuilder serverBuilder, int port, LaptopStoreService store) {
+    public LaptopServer(ServerBuilder serverBuilder, int port, LaptopStoreService laptopStore, ImageStoreService imageStore) {
         this.PORT = port;
-        LaptopService laptopService = new LaptopService(store);
+        LaptopService laptopService = new LaptopService(laptopStore, imageStore);
         server = serverBuilder.addService(laptopService).build();
     }
 
@@ -64,8 +66,9 @@ public class LaptopServer {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        LaptopStoreService store = new LaptopStoreServiceImpl();
-        LaptopServer server = new LaptopServer(8080, store);
+        LaptopStoreService laptopStore = new LaptopStoreServiceImpl();
+        ImageStoreService imageStore = new ImageStoreServiceImpl("img");
+        LaptopServer server = new LaptopServer(8080, laptopStore, imageStore);
         server.start();
         server.blockUntilShutdown();
     }
